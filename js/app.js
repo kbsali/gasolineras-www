@@ -1,18 +1,27 @@
-var gasLayer = null, map, _coords = [40.383, -3.717]; // Madrid
+var gasLayer = null,
+    map, _coords = [40.383, -3.717]; // Madrid
 
-function onMapClick(e) {
-    alert("You clicked the map at " + e.latlng);
+if (!_.isUndefined(Storage)) {
+    if (localStorage._coords) {
+        _coords = _.toArray(localStorage._coords.split(","));
+    }
 }
 
-handleGetCurrentPosition = function (location) {
+handleGetCurrentPosition = function(location) {
     _coords = [location.coords.latitude, location.coords.longitude];
+    if (!_.isUndefined(Storage)) {
+        localStorage._coords = _coords;
+    }
     map.setView(_coords, 13);
-    var circle = L.circle(_coords, 50, {
+    placeMarker(_coords);
+};
+
+placeMarker = function(coords) {
+    var circle = L.circle(coords, 50, {
         color: 'red',
         fillColor: '#f03',
         fillOpacity: 0.5
     }).addTo(map);
-
 };
 
 getLocation = function() {
@@ -30,12 +39,13 @@ getMap = function() {
                 maxZoom: 18,
                 subdomains: ["otile1", "otile2", "otile3", "otile4"],
                 attribution: 'Tiles: <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> | ' +
-                    'Map data (c) <a href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> contributors, CC-BY-SA | ' +
-                    'Pretol station data <a href="https://github.com/kbsali/gasolineras-espana-data" target="_blank">on Github</a> ' +
-                    'loaded through <a href="http://GitSpatial.com" target="_blank">GitSpatial</a>'
+                'Map data (c) <a href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> contributors, CC-BY-SA | ' +
+                'Pretol station data <a href="https://github.com/kbsali/gasolineras-espana-data" target="_blank">on Github</a> ' +
+                'loaded through <a href="http://GitSpatial.com" target="_blank">GitSpatial</a>'
             })
         ]
     });
+    placeMarker(_coords);
 };
 
 $(document).ready(function() {
@@ -43,7 +53,6 @@ $(document).ready(function() {
 
     var customMarker = L.Icon.extend({
         options: {
-            iconUrl: "/img/white-red.png",
             shadowUrl: null,
             iconSize: new L.Point(32, 37),
             iconAnchor: new L.Point(16, 37),
@@ -54,9 +63,12 @@ $(document).ready(function() {
     var _singleRed = {
         type: "single",
         vectorOptions: {
-            icon: new customMarker()
+            icon: new customMarker({
+                iconUrl: "/img/white-red.png"
+            })
         }
     };
+
     var _singleGreen = {
         type: "single",
         vectorOptions: {
@@ -80,8 +92,9 @@ $(document).ready(function() {
         },
         symbology: _singleRed
     };
+
     $("#buttons a").on("click", function() {
-        if("geolocate" === $(this).attr("id")) {
+        if ("geolocate" === $(this).attr("id")) {
             getLocation();
         } else {
             $("#buttons a.btn-success")
@@ -91,12 +104,11 @@ $(document).ready(function() {
                 .addClass("btn-success")
                 .removeClass("btn-default");
 
-            layer.featureSet = 'geojson/latest/'+ $(this).attr("id") +'.geojson';
-            if(_.isNull(gasLayer)) {
+            if (_.isNull(gasLayer)) {
                 gasLayer = new lvector.GitSpatial(layer);
             } else {
                 gasLayer.setMap(null);
-                gasLayer.setFeatureSet('geojson/latest/'+ $(this).attr("id") +'.geojson');
+                gasLayer.setFeatureSet('geojson/latest/' + $(this).attr("id") + '.geojson');
             }
             gasLayer.setMap(map);
         }

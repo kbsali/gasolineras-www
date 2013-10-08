@@ -24,7 +24,7 @@ getLocation = function() {
 getMap = function() {
     map = L.map("map", {
         center: _coords, // Madrid
-        zoom: 10,
+        zoom: 12,
         layers: [
             new L.TileLayer("http://{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png", {
                 maxZoom: 18,

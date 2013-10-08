@@ -6,7 +6,6 @@ function onMapClick(e) {
 
 handleGetCurrentPosition = function (location) {
     _coords = [location.coords.latitude, location.coords.longitude];
-    // getMap();
     map.setView(_coords, 13);
     var circle = L.circle(_coords, 50, {
         color: 'red',
@@ -30,7 +29,10 @@ getMap = function() {
             new L.TileLayer("http://{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png", {
                 maxZoom: 18,
                 subdomains: ["otile1", "otile2", "otile3", "otile4"],
-                attribution: 'Tiles: <a href="http://www.mapquest.com/" target="_blank">MapQuest</a>. Map data (c) <a href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> contributors, CC-BY-SA.'
+                attribution: 'Tiles: <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> | ' +
+                    'Map data (c) <a href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> contributors, CC-BY-SA | ' +
+                    'Pretol station data <a href="https://github.com/kbsali/gasolineras-espana-data" target="_blank">on Github</a> ' +
+                    'loaded through <a href="http://GitSpatial.com" target="_blank">GitSpatial</a>'
             })
         ]
     });
@@ -64,7 +66,7 @@ $(document).ready(function() {
         }
     };
 
-    var tpl = {
+    var layer = {
         user: 'kbsali',
         repo: 'gasolineras-espana-data',
         featureSet: 'geojson/latest/BIO.geojson',
@@ -79,19 +81,23 @@ $(document).ready(function() {
         symbology: _singleRed
     };
     $("#buttons a").on("click", function() {
-        $(this)
-            .addClass("btn-success")
-            .removeClass("btn-default");
         if("geolocate" === $(this).attr("id")) {
             getLocation();
         } else {
-            tpl.featureSet = 'geojson/latest/'+ $(this).attr("id") +'.geojson';
-            console.log(gasLayer);
-            if(!_.isNull(gasLayer)) {
+            $("#buttons a.btn-success")
+                .addClass("btn-default")
+                .removeClass("btn-success");
+            $(this)
+                .addClass("btn-success")
+                .removeClass("btn-default");
+
+            layer.featureSet = 'geojson/latest/'+ $(this).attr("id") +'.geojson';
+            if(_.isNull(gasLayer)) {
+                gasLayer = new lvector.GitSpatial(layer);
+            } else {
                 gasLayer.setMap(null);
-                gasLayer = null;
+                gasLayer.setFeatureSet('geojson/latest/'+ $(this).attr("id") +'.geojson');
             }
-            gasLayer = new lvector.GitSpatial(tpl);
             gasLayer.setMap(map);
         }
     });

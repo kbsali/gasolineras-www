@@ -1,4 +1,6 @@
-var minPrice = 10, maxPrice = 0, gasLayer = null,
+var minPrice = 10,
+    maxPrice = 0,
+    gasLayer = null,
     map, _coords = [40.383, -3.717]; // Madrid
 var range = [
     [0, 1],
@@ -113,6 +115,27 @@ getMap = function() {
     placeMarker(_coords);
 };
 
+getRoute = function(toCoords) {
+    dir = MQ.routing.directions();
+    dir.route({
+        locations: [{
+            latLng: {
+                lat: _coords[0],
+                lng: _coords[1]
+            }
+        }, {
+            latLng: {
+                lat: toCoords[1],
+                lng: toCoords[0]
+            }
+        }]
+    });
+    map.addLayer(MQ.routing.routeLayer({
+        directions: dir,
+        fitBounds: true
+    }));
+};
+
 getRange = function(type, idx) {
     var _ranges = {
         "BIO": [
@@ -148,10 +171,10 @@ updateRangeFullData = function(data) {
     var price = 0;
     for (var i = data.features.length - 1; i >= 0; i--) {
         price = data.features[i].properties.price;
-        if(minPrice > price) {
+        if (minPrice > price) {
             minPrice = price;
         }
-        if(maxPrice < price) {
+        if (maxPrice < price) {
             maxPrice = price;
         }
     }
@@ -163,10 +186,10 @@ updateRangeFullData = function(data) {
 };
 
 updateRange = function(data) {
-    if(minPrice > data.price) {
+    if (minPrice > data.price) {
         minPrice = data.price;
     }
-    if(maxPrice < data.price) {
+    if (maxPrice < data.price) {
         maxPrice = data.price;
     }
     range = [
@@ -190,6 +213,9 @@ $(document).ready(function() {
                 "<h3>" + data.name + "</h3>" +
                 "<h4>" + data.price + " &euro;</h4>" +
                 "</div>";
+        },
+        clickEvent: function(feature) {
+            getRoute(feature.geometry.coordinates);
         },
         symbology: getSymbology("BIO")
         // , onload: function(data) {

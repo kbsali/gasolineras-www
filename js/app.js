@@ -1,5 +1,10 @@
-var gasLayer = null,
+var minPrice = 10, maxPrice = 0, gasLayer = null,
     map, _coords = [40.383, -3.717]; // Madrid
+var range = [
+    [0, 1],
+    [1.001, 2],
+    [2.001, 10]
+];
 
 if (!_.isUndefined(Storage)) {
     if (localStorage._coords) {
@@ -25,37 +30,6 @@ MyGitSpatial = lvector.GitSpatial.extend({
     }
 });
 
-getRange = function(type, idx) {
-    var _ranges = {
-        "BIO": [
-            [0, 1.385],
-            [1.386, 1.450],
-            [1.451, 3]
-        ],
-        "GOA": [
-            [0, 1.390],
-            [1.391, 1.422],
-            [1.423, 3]
-        ],
-        "NGO": [
-            [0, 1.390],
-            [1.391, 1.422],
-            [1.423, 3]
-        ],
-        "G98": [
-            [0, 1.585],
-            [1.586, 1.604],
-            [1.605, 3]
-        ],
-        "GPR": [
-            [0, 1.469],
-            [1.470, 1.489],
-            [1.490, 3]
-        ]
-    };
-    return _ranges[type][idx];
-};
-
 getSymbology = function(type) {
     var customMarker = L.Icon.extend({
         options: {
@@ -65,10 +39,11 @@ getSymbology = function(type) {
             popupAnchor: new L.Point(0, -35)
         }
     });
-    return {
+    var ret = {
         type: "range",
         property: "price",
         ranges: [{
+            // range: range[0],
             range: getRange(type, 0),
             vectorOptions: {
                 icon: new customMarker({
@@ -77,6 +52,7 @@ getSymbology = function(type) {
                 title: "{price} mph &eur;"
             }
         }, {
+            // range: range[1],
             range: getRange(type, 1),
             vectorOptions: {
                 icon: new customMarker({
@@ -85,6 +61,7 @@ getSymbology = function(type) {
                 title: "{price} &eur;"
             }
         }, {
+            // range: range[2],
             range: getRange(type, 2),
             vectorOptions: {
                 icon: new customMarker({
@@ -94,6 +71,8 @@ getSymbology = function(type) {
             }
         }]
     };
+    console.log(ret);
+    return ret;
 };
 
 handleGetCurrentPosition = function(location) {
@@ -134,6 +113,69 @@ getMap = function() {
     placeMarker(_coords);
 };
 
+getRange = function(type, idx) {
+    var _ranges = {
+        "BIO": [
+            [0, 1.385],
+            [1.386, 1.450],
+            [1.451, 3]
+        ],
+        "GOA": [
+            [0, 1.390],
+            [1.391, 1.422],
+            [1.423, 3]
+        ],
+        "NGO": [
+            [0, 1.390],
+            [1.391, 1.422],
+            [1.423, 3]
+        ],
+        "G98": [
+            [0, 1.585],
+            [1.586, 1.604],
+            [1.605, 3]
+        ],
+        "GPR": [
+            [0, 1.469],
+            [1.470, 1.489],
+            [1.490, 3]
+        ]
+    };
+    return _ranges[type][idx];
+};
+
+updateRangeFullData = function(data) {
+    var price = 0;
+    for (var i = data.features.length - 1; i >= 0; i--) {
+        price = data.features[i].properties.price;
+        if(minPrice > price) {
+            minPrice = price;
+        }
+        if(maxPrice < price) {
+            maxPrice = price;
+        }
+    }
+    range = [
+        [0, minPrice],
+        [minPrice + 0.001, maxPrice],
+        [maxPrice + 0.001, 10]
+    ];
+};
+
+updateRange = function(data) {
+    if(minPrice > data.price) {
+        minPrice = data.price;
+    }
+    if(maxPrice < data.price) {
+        maxPrice = data.price;
+    }
+    range = [
+        [0, minPrice],
+        [minPrice + 0.001, maxPrice],
+        [maxPrice + 0.001, 10]
+    ];
+};
+
 $(document).ready(function() {
     getMap();
 
@@ -150,6 +192,9 @@ $(document).ready(function() {
                 "</div>";
         },
         symbology: getSymbology("BIO")
+        // , onload: function(data) {
+        //     updateRangeFullData(data);
+        // }
     };
 
     $("#buttons a").on("click", function() {

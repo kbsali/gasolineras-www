@@ -73,7 +73,6 @@ getSymbology = function(type) {
             }
         }]
     };
-    console.log(ret);
     return ret;
 };
 
@@ -224,6 +223,7 @@ $(document).ready(function() {
     };
 
     $("#buttons a").on("click", function() {
+        ga("send", "event", "button", "click");
         if ("geolocate" === $(this).attr("id")) {
             getLocation();
         } else {

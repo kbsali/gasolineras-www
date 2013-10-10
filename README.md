@@ -1,6 +1,14 @@
 Spain's petrol stations prices map
 ==================================
 
+Demo
+====
+
+See it in action : http://gasolineras.saliou.name/
+
+What is it?
+===========
+
 Simply shows a full screen map with a few buttons :
 * 1 to geolocate your position
 * 4 to display the petrol stations available in the area your map is centered on.
@@ -25,11 +33,6 @@ The page uses :
 * [Bootstrap](http://getbootstrap.com/) for the css (it is reponsive and should be seen correctly on mobile devices),
 * [MapQuest](http://www.mapquest.com/) for the map tiles and routes,
 * and because the amount of data that needs to be downloaded can be pretty big, I use [GitSpatial](http://gitspatial.com/) to only retrieve the data of the area shown on the screen.
-
-Demo
-====
-
-See it in action : http://gasolineras.saliou.name/
 
 Todo
 ====

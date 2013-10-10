@@ -2,12 +2,12 @@ Spain's petrol stations prices map
 ==================================
 
 Demo
-====
+----
 
 See it in action : http://gasolineras.saliou.name/
 
 What is it?
-===========
+-----------
 
 Simply shows a full screen map with a few buttons :
 * 1 to geolocate your position
@@ -26,7 +26,7 @@ There are numbers of pages and apps doing this already, but my idea was :
  * more about JS in general and Leaflet in particular! :)
 
 Third parties
-=============
+-------------
 
 The page uses :
 * [leaflet-vector-layers](https://github.com/JasonSanford/leaflet-vector-layers) for loading and plotting the data (and therefore [Leaflet](http://leafletjs.com/) too),
@@ -35,7 +35,7 @@ The page uses :
 * and because the amount of data that needs to be downloaded can be pretty big, I use [GitSpatial](http://gitspatial.com/) to only retrieve the data of the area shown on the screen.
 
 Todo
-====
+----
 
 * add a link to the popups to show the route from your current location to the selected station
  * right now opening a popup directly loads the route

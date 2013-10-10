@@ -76,15 +76,6 @@ getSymbology = function(type) {
     return ret;
 };
 
-handleGetCurrentPosition = function(location) {
-    _coords = [location.coords.latitude, location.coords.longitude];
-    if (!_.isUndefined(Storage)) {
-        localStorage._coords = _coords;
-    }
-    map.setView(_coords, 13);
-    placeMarker(_coords);
-};
-
 placeMarker = function(coords) {
     var circle = L.circle(coords, 50, {
         color: "red",
@@ -95,7 +86,20 @@ placeMarker = function(coords) {
 
 getLocation = function() {
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(handleGetCurrentPosition);
+        navigator.geolocation.getCurrentPosition(function(location) {
+            _coords = [location.coords.latitude, location.coords.longitude];
+            if (!_.isUndefined(Storage)) {
+                localStorage._coords = _coords;
+            }
+            map.setView(_coords, 13);
+            placeMarker(_coords);
+        }, function(error) {
+            alert('Error while getting your location');
+        }, {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+        });
     }
 };
 
@@ -200,11 +204,12 @@ updateRange = function(data) {
 
 $(document).ready(function() {
     getMap();
+    getLocation();
 
     var layer = {
         user: "kbsali",
         repo: "gasolineras-espana-data",
-        featureSet: "geojson/latest/BIO.geojson",
+        featureSet: "-",
         map: map,
         singlePopup: true,
         popupTemplate: function(data) {
@@ -234,13 +239,15 @@ $(document).ready(function() {
                 .addClass("btn-success")
                 .removeClass("btn-default");
 
+            var fs = "geojson/latest/" + $(this).attr("id") + ".geojson";
             if (_.isNull(gasLayer)) {
+                layer.featureSet = fs;
                 gasLayer = new MyGitSpatial(layer);
             } else {
                 gasLayer.setMap(null);
-                gasLayer.setFeatureSet("geojson/latest/" + $(this).attr("id") + ".geojson");
-                gasLayer.setSymbology(getSymbology($(this).attr("id")));
             }
+            gasLayer.setFeatureSet(fs);
+            gasLayer.setSymbology(getSymbology($(this).attr("id")));
             gasLayer.setMap(map);
         }
     });

@@ -207,7 +207,7 @@ $(document).ready(function() {
     getLocation();
 
     var layer = {
-        user: "kbsali",
+        user: "kbsali-data",
         repo: "gasolineras-espana-data",
         featureSet: "-",
         map: map,
